@@ -19,7 +19,8 @@
 @property (strong, nonatomic) AVCaptureDeviceInput *videoDeviceInput;
 @property (strong, nonatomic) AVCaptureDeviceInput *audioDeviceInput;
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
-@property (strong, nonatomic) UITapGestureRecognizer *tapGesture;
+@property (strong, nonatomic) UITapGestureRecognizer *singleTapGesture;
+@property (strong, nonatomic) UITapGestureRecognizer *doubleTapGesture;
 @property (strong, nonatomic) CALayer *focusBoxLayer;
 @property (strong, nonatomic) CAAnimation *focusBoxAnimation;
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
@@ -61,8 +62,8 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 {
     if (self = [super initWithCoder:aDecoder]) {
         [self setupWithQuality:AVCaptureSessionPresetHigh
-                      position:LLCameraPositionRear
-                  videoEnabled:YES];
+              position:LLCameraPositionRear
+              videoEnabled:YES];
     }
     return self;
 }
@@ -96,10 +97,17 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
     [self.view addSubview:self.preview];
 
     // tap to focus
-    self.tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(previewTapped:)];
-    self.tapGesture.numberOfTapsRequired = 1;
-    [self.tapGesture setDelaysTouchesEnded:NO];
-    [self.preview addGestureRecognizer:self.tapGesture];
+    self.singleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(previewTapped:)];
+    self.singleTapGesture.numberOfTapsRequired = 1;
+    [self.singleTapGesture setDelaysTouchesEnded:NO];
+    [self.preview addGestureRecognizer:self.singleTapGesture];
+
+    self.doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(previewDoubleTapped:)];
+    self.doubleTapGesture.numberOfTapsRequired = 2;
+    [self.doubleTapGesture setDelaysTouchesEnded:NO];
+    [self.preview addGestureRecognizer:self.doubleTapGesture];
+
+    [self.singleTapGesture requireGestureRecognizerToFail:self.doubleTapGesture];
 
     //pinch to zoom
     if (_zoomingEnabled) {
@@ -174,8 +182,8 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
                     }
                     else {
                         NSError *error = [NSError errorWithDomain:LLSimpleCameraErrorDomain
-                                                             code:LLSimpleCameraErrorCodeMicrophonePermission
-                                                         userInfo:nil];
+                                                  code:LLSimpleCameraErrorCodeMicrophonePermission
+                                                  userInfo:nil];
                         if(self.onError) {
                             self.onError(self, error);
                         }
@@ -188,8 +196,8 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
         }
         else {
             NSError *error = [NSError errorWithDomain:LLSimpleCameraErrorDomain
-                                                 code:LLSimpleCameraErrorCodeCameraPermission
-                                             userInfo:nil];
+                                      code:LLSimpleCameraErrorCodeCameraPermission
+                                      userInfo:nil];
             if(self.onError) {
                 self.onError(self, error);
             }
@@ -252,7 +260,7 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 
         if([self.session canAddInput:_videoDeviceInput]) {
             [self.session  addInput:_videoDeviceInput];
-			self.captureVideoPreviewLayer.connection.videoOrientation = [self orientationForConnection];
+            self.captureVideoPreviewLayer.connection.videoOrientation = [self orientationForConnection];
         }
 
         // add audio if video is enabled
@@ -306,8 +314,8 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 {
     if(!self.session) {
         NSError *error = [NSError errorWithDomain:LLSimpleCameraErrorDomain
-                                    code:LLSimpleCameraErrorCodeSession
-                                userInfo:nil];
+                                  code:LLSimpleCameraErrorCodeSession
+                                  userInfo:nil];
         onCapture(self, nil, nil, error);
         return;
     }
@@ -321,35 +329,35 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 
     [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
 
-         UIImage *image = nil;
-         NSDictionary *metadata = nil;
+        UIImage *image = nil;
+        NSDictionary *metadata = nil;
 
-         // check if we got the image buffer
-         if (imageSampleBuffer != NULL) {
-             CFDictionaryRef exifAttachments = CMGetAttachment(imageSampleBuffer, kCGImagePropertyExifDictionary, NULL);
-             if(exifAttachments) {
-                 metadata = (__bridge NSDictionary*)exifAttachments;
-             }
+        // check if we got the image buffer
+        if (imageSampleBuffer != NULL) {
+            CFDictionaryRef exifAttachments = CMGetAttachment(imageSampleBuffer, kCGImagePropertyExifDictionary, NULL);
+            if(exifAttachments) {
+                metadata = (__bridge NSDictionary*)exifAttachments;
+            }
 
-             NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
-             image = [[UIImage alloc] initWithData:imageData];
+            NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
+            image = [[UIImage alloc] initWithData:imageData];
 
-             if(exactSeenImage) {
-                 image = [self cropImageUsingPreviewBounds:image];
-             }
+            if(exactSeenImage) {
+                image = [self cropImageUsingPreviewBounds:image];
+            }
 
-             if(self.fixOrientationAfterCapture) {
-                 image = [image fixOrientation];
-             }
-         }
+            if(self.fixOrientationAfterCapture) {
+                image = [image fixOrientation];
+            }
+        }
 
-         // trigger the block
-         if(onCapture) {
-             dispatch_async(dispatch_get_main_queue(), ^{
+        // trigger the block
+        if(onCapture) {
+            dispatch_async(dispatch_get_main_queue(), ^{
                 onCapture(self, image, metadata, error);
-             });
-         }
-     }];
+            });
+        }
+    }];
 }
 
 -(void)capture:(void (^)(LLSimpleCamera *camera, UIImage *image, NSDictionary *metadata, NSError *error))onCapture
@@ -364,8 +372,8 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
     // check if video is enabled
     if(!self.videoEnabled) {
         NSError *error = [NSError errorWithDomain:LLSimpleCameraErrorDomain
-                                             code:LLSimpleCameraErrorCodeVideoNotEnabled
-                                         userInfo:nil];
+                                  code:LLSimpleCameraErrorCodeVideoNotEnabled
+                                  userInfo:nil];
         if(self.onError) {
             self.onError(self, error);
         }
@@ -670,7 +678,7 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 
 - (void)setTapToFocus:(BOOL)tapToFocus_ {
     tapToFocus = tapToFocus_;
-    self.tapGesture.enabled = tapToFocus;
+    self.singleTapGesture.enabled = tapToFocus;
 }
 
 // Find a camera with the specified AVCaptureDevicePosition, returning nil if one is not found
@@ -685,8 +693,7 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 
 #pragma mark - Focus
 
-- (void)previewTapped:(UIGestureRecognizer *)gestureRecognizer
-{
+- (void)previewTapped:(UITapGestureRecognizer *)gestureRecognizer {
     if(!self.tapToFocus) {
         return;
     }
@@ -699,6 +706,10 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 
     // show the box
     [self showFocusBox:touchedPoint];
+}
+
+- (void)previewDoubleTapped:(UIGestureRecognizer *)gestureRecognizer {
+    [self togglePosition];
 }
 
 - (void)addDefaultFocusBox
