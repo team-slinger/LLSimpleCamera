@@ -106,6 +106,11 @@ typedef enum : NSUInteger {
 @property (nonatomic) BOOL tapToFocus;
 
 /**
+ * Set NO if you don't want ot enable user triggered double tap to toggle position. Enabled by default.
+ */
+@property (nonatomic) BOOL doubleTapToTogglePosition;
+
+/**
  * Set YES if you your view controller does not allow autorotation,
  * however you want to take the device rotation into account no matter what. Disabled by default.
  */

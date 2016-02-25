@@ -35,6 +35,7 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 @implementation LLSimpleCamera
 
 @synthesize tapToFocus;
+@synthesize doubleTapToTogglePosition;
 
 #pragma mark - Initialize
 
@@ -76,6 +77,7 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
     _position = position;
     _fixOrientationAfterCapture = NO;
     tapToFocus = YES;
+    doubleTapToTogglePosition = YES;
     _useDeviceOrientation = NO;
     _flash = LLCameraFlashOff;
     _mirror = LLCameraMirrorAuto;
@@ -681,6 +683,11 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
     self.singleTapGesture.enabled = tapToFocus;
 }
 
+- (void)setDoubleTapToTogglePosition:(BOOL)doubleTapToTogglePosition_ {
+    doubleTapToTogglePosition = doubleTapToTogglePosition_;
+    self.doubleTapGesture.enabled = doubleTapToTogglePosition;
+}
+
 // Find a camera with the specified AVCaptureDevicePosition, returning nil if one is not found
 - (AVCaptureDevice *) cameraWithPosition:(AVCaptureDevicePosition) position
 {
@@ -709,6 +716,9 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 }
 
 - (void)previewDoubleTapped:(UIGestureRecognizer *)gestureRecognizer {
+    if (!self.doubleTapToTogglePosition) {
+        return;;
+    }
     [self togglePosition];
 }
 
