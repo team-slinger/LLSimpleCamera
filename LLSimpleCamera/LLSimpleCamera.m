@@ -33,6 +33,8 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 
 @implementation LLSimpleCamera
 
+@synthesize tapToFocus;
+
 #pragma mark - Initialize
 
 - (instancetype)init
@@ -72,7 +74,7 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
     _cameraQuality = quality;
     _position = position;
     _fixOrientationAfterCapture = NO;
-    _tapToFocus = YES;
+    tapToFocus = YES;
     _useDeviceOrientation = NO;
     _flash = LLCameraFlashOff;
     _mirror = LLCameraMirrorAuto;
@@ -95,7 +97,7 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 
     // tap to focus
     self.tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(previewTapped:)];
-    self.tapGesture.numberOfTapsRequired = 2;
+    self.tapGesture.numberOfTapsRequired = 1;
     [self.tapGesture setDelaysTouchesEnded:NO];
     [self.preview addGestureRecognizer:self.tapGesture];
 
@@ -666,6 +668,10 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
     [self setMirror:_mirror];
 }
 
+- (void)setTapToFocus:(BOOL)tapToFocus_ {
+    tapToFocus = tapToFocus_;
+    self.tapGesture.enabled = tapToFocus;
+}
 
 // Find a camera with the specified AVCaptureDevicePosition, returning nil if one is not found
 - (AVCaptureDevice *) cameraWithPosition:(AVCaptureDevicePosition) position
