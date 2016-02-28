@@ -681,11 +681,6 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
     self.singleTapGesture.enabled = tapToFocus;
 }
 
-- (void)setDoubleTapToTogglePosition:(BOOL)doubleTapToTogglePosition_ {
-    doubleTapToTogglePosition = doubleTapToTogglePosition_;
-    self.doubleTapGesture.enabled = doubleTapToTogglePosition;
-}
-
 // Find a camera with the specified AVCaptureDevicePosition, returning nil if one is not found
 - (AVCaptureDevice *) cameraWithPosition:(AVCaptureDevicePosition) position
 {
