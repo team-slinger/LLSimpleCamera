@@ -38,6 +38,15 @@ typedef enum : NSUInteger {
 
 @interface LLSimpleCamera : UIViewController
 
+/*
+ * Controls tap to focus
+ * */
+@property (strong, nonatomic) UITapGestureRecognizer *singleTapGesture;
+/*
+ * Controls double tap to flip
+ * */
+@property (strong, nonatomic) UITapGestureRecognizer *doubleTapGesture;
+
 /**
  * Triggered on device change.
  */
