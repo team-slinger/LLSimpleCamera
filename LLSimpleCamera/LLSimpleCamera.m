@@ -23,6 +23,8 @@
 @property (strong, nonatomic) CAAnimation *focusBoxAnimation;
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 @property (strong, nonatomic) UIPinchGestureRecognizer *pinchGesture;
+@property (strong, nonatomic) UITapGestureRecognizer *singleTapGesture;
+@property (strong, nonatomic) UITapGestureRecognizer *doubleTapGesture;
 @property (nonatomic, assign) CGFloat beginGestureScale;
 @property (nonatomic, assign) CGFloat effectiveScale;
 @property (nonatomic, copy) void (^didRecord)(LLSimpleCamera *camera, NSURL *outputFileUrl, NSError *error);
@@ -33,7 +35,6 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 @implementation LLSimpleCamera
 
 @synthesize tapToFocus;
-@synthesize doubleTapToTogglePosition;
 
 #pragma mark - Initialize
 
@@ -75,7 +76,6 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
     _position = position;
     _fixOrientationAfterCapture = NO;
     tapToFocus = YES;
-    doubleTapToTogglePosition = YES;
     _useDeviceOrientation = NO;
     _flash = LLCameraFlashOff;
     _mirror = LLCameraMirrorAuto;
@@ -714,10 +714,9 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 }
 
 - (void)previewDoubleTapped:(UIGestureRecognizer *)gestureRecognizer {
-    if (!self.doubleTapToTogglePosition) {
-        return;;
+    if ([self.delegate respondsToSelector:@selector(LLSimpleCameraDoubleTapped)]) {
+        [self.delegate LLSimpleCameraDoubleTapped];
     }
-    [self togglePosition];
 }
 
 - (void)addDefaultFocusBox

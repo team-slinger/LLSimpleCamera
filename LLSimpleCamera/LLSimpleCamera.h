@@ -36,16 +36,15 @@ typedef enum : NSUInteger {
     LLSimpleCameraErrorCodeVideoNotEnabled = 13
 } LLSimpleCameraErrorCode;
 
+@protocol LLSimpleCameraDelegate <NSObject>
+
+- (void)LLSimpleCameraDoubleTapped;
+
+@end
+
 @interface LLSimpleCamera : UIViewController
 
-/*
- * Controls tap to focus
- * */
-@property (strong, nonatomic) UITapGestureRecognizer *singleTapGesture;
-/*
- * Controls double tap to flip
- * */
-@property (strong, nonatomic) UITapGestureRecognizer *doubleTapGesture;
+@property (strong, nonatomic) id<LLSimpleCameraDelegate> delegate;
 
 /**
  * Triggered on device change.
@@ -113,11 +112,6 @@ typedef enum : NSUInteger {
  * Set NO if you don't want ot enable user triggered focusing. Enabled by default.
  */
 @property (nonatomic) BOOL tapToFocus;
-
-/**
- * Set NO if you don't want ot enable user triggered double tap to toggle position. Enabled by default.
- */
-@property (nonatomic) BOOL doubleTapToTogglePosition;
 
 /**
  * Set YES if you your view controller does not allow autorotation,
