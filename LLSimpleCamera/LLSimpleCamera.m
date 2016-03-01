@@ -670,7 +670,6 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 
 - (void)setTapToFocus:(BOOL)tapToFocus_ {
     tapToFocus = tapToFocus_;
-    self.singleTapGesture.enabled = tapToFocus;
 }
 
 // Find a camera with the specified AVCaptureDevicePosition, returning nil if one is not found
