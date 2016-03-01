@@ -23,7 +23,6 @@
 @property (strong, nonatomic) CAAnimation *focusBoxAnimation;
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 @property (strong, nonatomic) UIPinchGestureRecognizer *pinchGesture;
-@property (strong, nonatomic) UITapGestureRecognizer *singleTapGesture;
 @property (strong, nonatomic) UITapGestureRecognizer *doubleTapGesture;
 @property (nonatomic, assign) CGFloat beginGestureScale;
 @property (nonatomic, assign) CGFloat effectiveScale;
@@ -97,17 +96,10 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
     [self.view addSubview:self.preview];
 
     // tap to focus
-    self.singleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(previewTapped:)];
-    self.singleTapGesture.numberOfTapsRequired = 1;
-    [self.singleTapGesture setDelaysTouchesEnded:NO];
-    [self.preview addGestureRecognizer:self.singleTapGesture];
-
     self.doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(previewDoubleTapped:)];
     self.doubleTapGesture.numberOfTapsRequired = 2;
     [self.doubleTapGesture setDelaysTouchesEnded:NO];
     [self.preview addGestureRecognizer:self.doubleTapGesture];
-
-    [self.singleTapGesture requireGestureRecognizerToFail:self.doubleTapGesture];
 
     //pinch to zoom
     if (_zoomingEnabled) {
@@ -693,7 +685,7 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 
 #pragma mark - Focus
 
-- (void)previewTapped:(UITapGestureRecognizer *)gestureRecognizer {
+- (void)previewDoubleTapped:(UIGestureRecognizer *)gestureRecognizer {
     if(!self.tapToFocus) {
         return;
     }
@@ -706,12 +698,6 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 
     // show the box
     [self showFocusBox:touchedPoint];
-}
-
-- (void)previewDoubleTapped:(UIGestureRecognizer *)gestureRecognizer {
-    if ([self.delegate respondsToSelector:@selector(LLSimpleCameraDoubleTapped)]) {
-        [self.delegate LLSimpleCameraDoubleTapped];
-    }
 }
 
 - (void)addDefaultFocusBox

@@ -44,8 +44,6 @@ typedef enum : NSUInteger {
 
 @interface LLSimpleCamera : UIViewController
 
-@property (strong, nonatomic) id<LLSimpleCameraDelegate> delegate;
-
 /**
  * Triggered on device change.
  */
