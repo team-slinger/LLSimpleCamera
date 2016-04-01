@@ -23,7 +23,7 @@
 @property (strong, nonatomic) CAAnimation *focusBoxAnimation;
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 @property (strong, nonatomic) UIPinchGestureRecognizer *pinchGesture;
-@property (strong, nonatomic) UITapGestureRecognizer *tapGesture;
+//@property (strong, nonatomic) UITapGestureRecognizer *tapGesture;
 @property (nonatomic, assign) CGFloat beginGestureScale;
 @property (nonatomic, assign) CGFloat effectiveScale;
 @property (nonatomic, copy) void (^didRecord)(LLSimpleCamera *camera, NSURL *outputFileUrl, NSError *error);
@@ -96,10 +96,10 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
     [self.view addSubview:self.preview];
 
     // tap to focus
-    self.tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(previewTapped:)];
-    self.tapGesture.numberOfTapsRequired = 1;
-    [self.tapGesture setDelaysTouchesEnded:NO];
-    [self.preview addGestureRecognizer:self.tapGesture];
+//    self.tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(previewTapped:)];
+//    self.tapGesture.numberOfTapsRequired = 1;
+//    [self.tapGesture setDelaysTouchesEnded:NO];
+//    [self.preview addGestureRecognizer:self.tapGesture];
 
     //pinch to zoom
     if (_zoomingEnabled) {
