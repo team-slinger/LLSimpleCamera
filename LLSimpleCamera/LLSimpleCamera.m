@@ -24,6 +24,7 @@
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 @property (strong, nonatomic) UIPinchGestureRecognizer *pinchGesture;
 @property (strong, nonatomic) UITapGestureRecognizer *tapGesture;
+@property (strong, nonatomic) UITapGestureRecognizer *doubleTapGesture;
 @property (nonatomic, assign) CGFloat beginGestureScale;
 @property (nonatomic, assign) CGFloat effectiveScale;
 @property (nonatomic, copy) void (^didRecord)(LLSimpleCamera *camera, NSURL *outputFileUrl, NSError *error);
@@ -100,6 +101,14 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
     self.tapGesture.numberOfTapsRequired = 1;
     [self.tapGesture setDelaysTouchesEnded:NO];
     [self.preview addGestureRecognizer:self.tapGesture];
+
+    self.doubleTapGesture = [[UITapGestureRecognizer alloc]
+            initWithTarget:self
+            action:@selector(previewDoubleTapped:)];
+    self.doubleTapGesture.numberOfTapsRequired = 2;
+    [self.doubleTapGesture setDelaysTouchesEnded:NO];
+    [self.view addGestureRecognizer:self.doubleTapGesture];
+    [self.tapGesture requireGestureRecognizerToFail:self.doubleTapGesture];
 
     //pinch to zoom
     if (_zoomingEnabled) {
@@ -696,6 +705,9 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 
     // show the box
     [self showFocusBox:touchedPoint];
+}
+- (void)previewDoubleTapped:(UIGestureRecognizer *)gestureRecognizer {
+    [self togglePosition]
 }
 
 - (void)addDefaultFocusBox
