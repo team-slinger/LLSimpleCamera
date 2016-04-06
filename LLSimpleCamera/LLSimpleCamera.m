@@ -707,7 +707,7 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
     [self showFocusBox:touchedPoint];
 }
 - (void)previewDoubleTapped:(UIGestureRecognizer *)gestureRecognizer {
-    [self togglePosition]
+    [self togglePosition];
 }
 
 - (void)addDefaultFocusBox
