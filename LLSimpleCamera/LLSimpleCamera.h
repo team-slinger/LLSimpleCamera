@@ -38,11 +38,9 @@ typedef enum : NSUInteger {
 
 @protocol LLSimpleCameraDelegate <NSObject>
 
-- (void)LLSimpleCameraDoubleTapped;
-
 @end
 
-@interface LLSimpleCamera : UIViewController
+@interface LLSimpleCamera : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate>
 
 /**
  * Triggered on device change.
@@ -116,6 +114,11 @@ typedef enum : NSUInteger {
  * however you want to take the device rotation into account no matter what. Disabled by default.
  */
 @property (nonatomic) BOOL useDeviceOrientation;
+
+/*
+ * This is the currently displayed frame on the screen
+ * */
+@property (weak, nonatomic) UIImage *lastFrameTaken;
 
 /**
  * Use this method to request camera permission before initalizing LLSimpleCamera.
