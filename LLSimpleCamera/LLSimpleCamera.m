@@ -10,11 +10,12 @@
 #import <ImageIO/CGImageProperties.h>
 #import "UIImage+FixOrientation.h"
 
-@interface LLSimpleCamera () <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate>
+@interface LLSimpleCamera () <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, AVCaptureVideoDataOutputSampleBufferDelegate>
 
 @property (strong, nonatomic) CALayer *focusBoxLayer;
 @property (strong, nonatomic) CAAnimation *focusBoxAnimation;
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
+@property (strong, nonatomic) AVCaptureVideoDataOutput *videoDataOutput;
 @property (strong, nonatomic) UIPinchGestureRecognizer *pinchGesture;
 @property (strong, nonatomic) UITapGestureRecognizer *tapGesture;
 @property (strong, nonatomic) UITapGestureRecognizer *doubleTapGesture;
@@ -276,6 +277,21 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
             if([self.session canAddOutput:_movieFileOutput]) {
                 [self.session addOutput:_movieFileOutput];
             }
+
+            //get frames from recording
+            //https://developer.apple.com/library/ios/qa/qa1702/_index.html
+            // Create a VideoDataOutput and add it to the session
+            self.videoDataOutput = [AVCaptureVideoDataOutput new];
+            // Configure your output.
+            dispatch_queue_t queue = dispatch_queue_create("LLSimpleCameraAVCaptureVideoDataOutputQueue", NULL);
+            [self.videoDataOutput setSampleBufferDelegate:self queue:queue];
+            // Specify the pixel format
+            self.videoDataOutput.videoSettings =
+                    @{(id) kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA)};
+            if ([self.session canAddOutput:self.videoDataOutput]) {
+                [self.session addOutput:self.videoDataOutput];
+            }
+
         }
 
         // continiously adjust white balance
@@ -956,6 +972,16 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
 + (BOOL)isRearCameraAvailable
 {
     return [UIImagePickerController isCameraDeviceAvailable:UIImagePickerControllerCameraDeviceRear];
+}
+
+#pragma mark AVCaptureVideoDataOutputSampleBufferDelegate
+
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+    NSLog(@"DID OUTPUT SAMPLE BUFFER");
+}
+
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didDropSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+    NSLog(@"DID DROP SAMPLE BUFFER");
 }
 
 @end
