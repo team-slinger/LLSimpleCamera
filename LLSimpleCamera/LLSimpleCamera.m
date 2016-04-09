@@ -283,6 +283,20 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
             if([self.session canAddOutput:_movieFileOutput]) {
                 [self.session addOutput:_movieFileOutput];
             }
+
+            //get frames from recording
+            //https://developer.apple.com/library/ios/qa/qa1702/_index.html
+            // Create a VideoDataOutput and add it to the session
+            AVCaptureVideoDataOutput *videoDataOutput = [AVCaptureVideoDataOutput new];
+            // Configure your output.
+            dispatch_queue_t queue = dispatch_queue_create("LLSimpleCameraAVCaptureVideoDataOutputQueue", NULL);
+            [videoDataOutput setSampleBufferDelegate:self queue:queue];
+            // Specify the pixel format
+            videoDataOutput.videoSettings =
+                    @{(id) kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA)};
+            if ([self.session canAddOutput:videoDataOutput]) {
+                [self.session addOutput:videoDataOutput];
+            }
         }
 
         // continiously adjust white balance
@@ -293,18 +307,6 @@ NSString *const LLSimpleCameraErrorDomain = @"LLSimpleCameraErrorDomain";
         NSDictionary *outputSettings = [[NSDictionary alloc] initWithObjectsAndKeys: AVVideoCodecJPEG, AVVideoCodecKey, nil];
         [self.stillImageOutput setOutputSettings:outputSettings];
         [self.session addOutput:self.stillImageOutput];
-
-        //get frames from recording
-        //https://developer.apple.com/library/ios/qa/qa1702/_index.html
-        // Create a VideoDataOutput and add it to the session
-        AVCaptureVideoDataOutput *videoDataOutput = [AVCaptureVideoDataOutput new];
-        [self.session addOutput:videoDataOutput];
-        // Configure your output.
-        dispatch_queue_t queue = dispatch_queue_create("LLSimpleCameraAVCaptureVideoDataOutputQueue", NULL);
-        [videoDataOutput setSampleBufferDelegate:self queue:queue];
-        // Specify the pixel format
-        videoDataOutput.videoSettings =
-                @{(id) kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA)};
     }
 
     //if we had disabled the connection on capture, re-enable it
